@@ -1,3 +1,4 @@
+use std::error::Error;
 use chrono::{DateTime, Local, Utc};
 use clap::Parser;
 
@@ -201,13 +202,34 @@ fn main() {
     let auth =
         AuthRequest::Munge(munge_auth::munge(&serde_json::to_string(&login).unwrap()).unwrap());
 
-    let log_resp = client
+    let log_resp = match client
         //TODO change to url after setting up dns for server
         .post(format!("{}/login", srv))
         .json(&auth)
-        .send()
-        .unwrap();
-    let token: Token = log_resp.json().unwrap();
+        .send() {
+        Ok(log_resp) => log_resp,
+        Err(e) => {
+            eprintln!("Error logging in: {}", e);
+            let mut errsrc = e.source();
+            while let Some(source) = errsrc {
+                eprintln!("caused by: {}", source);
+                errsrc = source.source();
+            }
+            panic!();
+        }
+    };
+    let token: Token = match log_resp.json() {
+        Ok(token) => token,
+        Err(e) => {
+            eprintln!("Error unwrapping auth token: {}", e);
+            let mut errsrc = e.source();
+            while let Some(source) = errsrc {
+                eprintln!("caused by: {}", source);
+                errsrc = source.source();
+            }
+            panic!();
+        }
+    };
 
     let mut headers = header::HeaderMap::new();
     headers.insert(
