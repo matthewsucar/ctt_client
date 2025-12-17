@@ -18,6 +18,8 @@ pub struct Cli {
     pub cmd: Command,
     #[arg(short, long)]
     pub server: Option<String>,
+    #[arg(short,long)]
+    pub retries:Option<i32>,
 }
 
 #[derive(Subcommand)]

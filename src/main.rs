@@ -173,8 +173,15 @@ fn main() {
     let srv = if let Some(s) = args.server {
         s
     } else {
-        let hostname = fs::read_to_string("/etc/pbs.conf")
-            .unwrap()
+        let pbsconf = match fs::read_to_string("/etc/pbs.conf") {
+            Ok(pc) => pc,
+            Err(e) => {
+                eprintln!("No server specified and pbs.conf not found\n Technical info: {} \n\n", e);
+                panic!()
+            },
+        };
+        let hostname =
+            pbsconf
             .lines()
             .map(String::from)
             .filter(|s| s.contains("PBS_SERVER"))
@@ -199,37 +206,64 @@ fn main() {
             .unwrap(),
         timestamp: Utc::now().naive_utc(),
     };
-    let auth =
-        AuthRequest::Munge(munge_auth::munge(&serde_json::to_string(&login).unwrap()).unwrap());
 
-    let log_resp = match client
-        //TODO change to url after setting up dns for server
-        .post(format!("{}/login", srv))
-        .json(&auth)
-        .send() {
-        Ok(log_resp) => log_resp,
-        Err(e) => {
-            eprintln!("Error logging in: {}", e);
-            let mut errsrc = e.source();
-            while let Some(source) = errsrc {
-                eprintln!("caused by: {}", source);
-                errsrc = source.source();
-            }
-            panic!();
-        }
+    let retries = if let Some(r) = args.retries {
+        r
+    } else {
+        3
     };
-    let token: Token = match log_resp.json() {
-        Ok(token) => token,
-        Err(e) => {
-            eprintln!("Error unwrapping auth token: {}", e);
-            let mut errsrc = e.source();
-            while let Some(source) = errsrc {
-                eprintln!("caused by: {}", source);
-                errsrc = source.source();
-            }
-            panic!();
-        }
+
+    let mut m = None;
+    for _ in 0..retries {
+        match munge_auth::munge(&serde_json::to_string(&login).unwrap()) {
+            Ok(mtok) => {m = Some(mtok); break},
+            Err(e) => eprintln!("Warning: Munge Error: {}", e),
+        };
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    let m = match m {
+        Some(m) => m,
+        None => panic!("Error obtaining munge signature")
     };
+    let auth =
+        AuthRequest::Munge(m);
+
+    let mut token_option: Option<Token> = None;
+
+    for _ in 0..retries {
+        let log_resp = match client
+            //TODO change to url after setting up dns for server
+            .post(format!("{}/login", srv))
+            .json(&auth)
+            .send() {
+            Ok(log_resp) => log_resp,
+            Err(e) => {
+                eprintln!("Error logging in: {}", e);
+                let mut errsrc = e.source();
+                while let Some(source) = errsrc {
+                    eprintln!("caused by: {}", source);
+                    errsrc = source.source();
+                }
+                eprintln!("Maybe retrying...\n\n");
+                continue;
+            }
+        };
+        match log_resp.json() {
+            Ok(t) => {token_option = t; break},
+            Err(e) => {
+                eprintln!("Error unwrapping auth token: {}", e);
+                let mut errsrc = e.source();
+                while let Some(source) = errsrc {
+                    eprintln!("caused by: {}", source);
+                    errsrc = source.source();
+                }
+                eprintln!("Maybe retrying...\n\n");
+                continue;
+            }
+        };
+    }
+
+    let token = token_option.unwrap();
 
     let mut headers = header::HeaderMap::new();
     headers.insert(
