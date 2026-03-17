@@ -166,7 +166,7 @@ fn main() {
         //.add_root_certificate(cert.clone())
         //TODO FIXME get rid of this
         .danger_accept_invalid_certs(true)
-        .timeout(Duration::from_secs(15))
+        .timeout(Duration::from_secs(120))
         .build()
         .unwrap();
     let args = Cli::parse();
