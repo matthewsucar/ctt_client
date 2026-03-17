@@ -307,13 +307,13 @@ fn main() {
             if let Some(hash) = option_env!("VERGEN_GIT_SHA") {
                 println!("Commit hash: {hash}");
             }
-            if let Some(desc) = option_env!("VERGEN_GIT_DESCRIBE_NAME") {
+            if let Some(desc) = option_env!("VERGEN_GIT_DESCRIBE") {
                 println!("Git: {}", desc);
             }
-            if let Some(branch) = option_env!("VERGEN_GIT_BRANCH_NAME") {
+            if let Some(branch) = option_env!("VERGEN_GIT_BRANCH") {
                 println!("Branch: {}", branch);
             }
-            if let Some(bdate) = option_env!("VERGEN_BUILD_DATE_NAME") {
+            if let Some(bdate) = option_env!("VERGEN_BUILD_TIMESTAMP") {
                 println!("Build Date: {}", bdate);
             }
         },
