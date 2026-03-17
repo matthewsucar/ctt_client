@@ -8,6 +8,7 @@ use std::{
     io::Error,
     path::{Path, PathBuf},
 };
+use vergen_git2::{Emitter, Git2Builder, BuildBuilder, CargoBuilder, RustcBuilder, SysinfoBuilder};
 
 include!("src/cli.rs");
 
@@ -43,9 +44,27 @@ fn build_manpages(outdir: &Path) -> Result<(), Error> {
     Ok(())
 }
 
+fn emit_version_info() -> Result<(), Box<dyn std::error::Error> > {
+    let build = BuildBuilder::all_build()?;
+    let cargo = CargoBuilder::all_cargo()?;
+    let git2 = Git2Builder::all_git()?;
+    let rustc = RustcBuilder::all_rustc()?;
+    let si = SysinfoBuilder::all_sysinfo()?;
+
+    Emitter::default()
+        .add_instructions(&build)?
+        .add_instructions(&cargo)?
+        .add_instructions(&git2)?
+        .add_instructions(&rustc)?
+        .add_instructions(&si)?
+        .emit()?;
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=src/main.rs");
     println!("cargo:rerun-if-changed=man");
+    emit_version_info()?;
 
     let outdir = match env::var_os("OUT_DIR") {
         None => return Ok(()),

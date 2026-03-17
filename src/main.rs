@@ -302,5 +302,12 @@ fn main() {
             Ok(status) => print_issue(status),
             Err(error) => println!("Error updating issue: {}", error),
         },
+        Command::Version => {
+            println!("{}", env!("CARGO_PKG_VERSION"));
+            if let Some(hash) = option_env!("VERGEN_GIT_SHA") {
+                println!("{hash}");
+            }
+
+        },
     };
 }

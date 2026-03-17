@@ -33,6 +33,7 @@ pub enum Command {
     Close(CloseVariables),
     #[command(arg_required_else_help = true)]
     Update(ModifyUpdateIssue),
+    Version,
 }
 
 #[derive(clap::Args)]
