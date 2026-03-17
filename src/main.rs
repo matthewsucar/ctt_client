@@ -303,11 +303,19 @@ fn main() {
             Err(error) => println!("Error updating issue: {}", error),
         },
         Command::Version => {
-            println!("{}", env!("CARGO_PKG_VERSION"));
+            println!("ctt_client version {}", env!("CARGO_PKG_VERSION"));
             if let Some(hash) = option_env!("VERGEN_GIT_SHA") {
-                println!("{hash}");
+                println!("Commit hash: {hash}");
             }
-
+            if let Some(desc) = option_env!("VERGEN_GIT_DESCRIBE_NAME") {
+                println!("Git: {}", desc);
+            }
+            if let Some(branch) = option_env!("VERGEN_GIT_BRANCH_NAME") {
+                println!("Branch: {}", branch);
+            }
+            if let Some(bdate) = option_env!("VERGEN_BUILD_DATE_NAME") {
+                println!("Build Date: {}", bdate);
+            }
         },
     };
 }
