@@ -3,6 +3,7 @@ pub mod get_issue;
 pub mod list_issues;
 pub mod modify_issue;
 pub mod open_issue;
+pub mod version;
 use core::fmt;
 
 pub use crate::cli::ToOffline;

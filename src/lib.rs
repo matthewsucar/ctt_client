@@ -72,3 +72,16 @@ pub fn issue_update(
         Err(e) => Err(e.to_string()),
     }
 }
+
+pub fn version_show(
+    client: &Client,
+    srv: &str,
+    vars: version::Variables
+) -> Result<Option<String>, String> {
+    let resp_body = post_graphql::<version::GetVersion, _>(client, srv, vars).unwrap();
+    if let Some(errors) = resp_body.errors {
+        return Err(errors[0].message.to_string());
+    }
+    let data: version::ResponseData = resp_body.data.unwrap();
+    Ok(data.version)
+}

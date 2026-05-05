@@ -316,6 +316,13 @@ fn main() {
             if let Some(bdate) = option_env!("VERGEN_BUILD_TIMESTAMP") {
                 println!("Build Date: {}", bdate);
             }
+            println!("\n\n");
+            let server_version = ctt::version_show(&client, &api_endpoint, version::Variables::default());
+            let server_version = match server_version {
+                Ok(v) => v.unwrap(),
+                Err(e) => e.to_string()//"Unavailable".to_string(),
+            };
+            println!("ctt_server version {}", server_version);
         },
     };
 }
