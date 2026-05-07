@@ -150,6 +150,7 @@ pub enum ToOffline {
     Node,
     Card,
     Blade,
+    None,
 }
 impl fmt::Display for ToOffline {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -157,6 +158,7 @@ impl fmt::Display for ToOffline {
             ToOffline::Node => write!(f, "Node"),
             ToOffline::Card => write!(f, "Card"),
             ToOffline::Blade => write!(f, "Blade"),
+            ToOffline::None => write!(f, "None"),
         }
     }
 }
@@ -166,6 +168,7 @@ impl ::serde::Serialize for ToOffline {
             ToOffline::Node => "NODE",
             ToOffline::Card => "CARD",
             ToOffline::Blade => "BLADE",
+            ToOffline::None => "NONE",
         })
     }
 }
@@ -176,6 +179,7 @@ impl<'de> ::serde::Deserialize<'de> for ToOffline {
             "NODE" => Ok(ToOffline::Node),
             "CARD" => Ok(ToOffline::Card),
             "BLADE" => Ok(ToOffline::Blade),
+            "NONE" => Ok(ToOffline::None),
             _ => panic!("Can't deserialize {}", s),
         }
     }
