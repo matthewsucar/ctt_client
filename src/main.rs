@@ -324,18 +324,22 @@ fn main() {
             Err(error) => println!("Error updating issue: {}", error),
         },
         Command::Version => {
-            println!("ctt_client version {}", env!("CARGO_PKG_VERSION"));
+            let mut ver_str:String = format!("ctt_client version {}\n", env!("CARGO_PKG_VERSION"));
             if let Some(hash) = option_env!("VERGEN_GIT_SHA") {
-                println!("Commit hash: {hash}");
+                let s = format!("Commit hash: {hash}\n");
+                ver_str.push_str(s.as_str());
             }
             if let Some(desc) = option_env!("VERGEN_GIT_DESCRIBE") {
-                println!("Git: {}", desc);
+                let s = format!("Git: {}\n", desc);
+                ver_str.push_str(s.as_str());
             }
             if let Some(branch) = option_env!("VERGEN_GIT_BRANCH") {
-                println!("Branch: {}", branch);
+                let s = format!("Branch: {}\n", branch);
+                ver_str.push_str(s.as_str());
             }
             if let Some(bdate) = option_env!("VERGEN_BUILD_TIMESTAMP") {
-                println!("Build Date: {}", bdate);
+                let s = format!("Build Date: {}\n", bdate);
+                ver_str.push_str(s.as_str());
             }
             println!("\n\n");
             let server_version = ctt::version_show(&client, &api_endpoint, version::Variables::default());
@@ -343,7 +347,12 @@ fn main() {
                 Ok(v) => v.unwrap(),
                 Err(e) => e.to_string()//"Unavailable".to_string(),
             };
-            println!("ctt_server version {}", server_version);
+            let s = format!("ctt_server version {}", server_version);
+            ver_str.push_str(s.as_str());
+            match oformat {
+                ctt::cli::DisplayFormat::Human => println!("{}", ver_str),
+                ctt::cli::DisplayFormat::JSON => println!("{}", serde_json::to_string_pretty(&ver_str).unwrap()),
+            }
         },
     };
 }
