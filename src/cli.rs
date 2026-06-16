@@ -20,6 +20,8 @@ pub struct Cli {
     pub server: Option<String>,
     #[arg(short,long)]
     pub retries:Option<i32>,
+    #[arg(short,long)]
+    pub format:Option<DisplayFormat>
 }
 
 #[derive(Subcommand)]
@@ -110,6 +112,13 @@ pub enum IssueStatus {
     CLOSED,
     OPENING,
     CLOSING,
+}
+
+#[derive(Clone, clap::ValueEnum, Default, Debug)]
+pub enum DisplayFormat {
+    #[default]
+    Human,
+    JSON,
 }
 
 impl fmt::Display for IssueStatus {

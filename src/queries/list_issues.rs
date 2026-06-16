@@ -1,6 +1,6 @@
 use super::*;
 pub use crate::cli::ListVariables as Variables;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub struct ListIssues;
 pub const OPERATION_NAME: &str = "ListIssues";
@@ -9,7 +9,7 @@ pub const QUERY : & str = "query ListIssues($status: IssueStatus, $target: Strin
 pub struct ResponseData {
     pub issues: Vec<ListIssuesIssues>,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ListIssuesIssues {
     #[serde(rename = "assignedTo")]
     pub assigned_to: Option<String>,
@@ -23,7 +23,7 @@ pub struct ListIssuesIssues {
     pub target: Option<ListIssuesIssuesTarget>,
     pub related: Vec<ListIssuesIssuesTarget>,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ListIssuesIssuesTarget {
     pub name: String,
     pub status: TargetStatus,

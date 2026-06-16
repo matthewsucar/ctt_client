@@ -7,10 +7,25 @@ use ctt::cli::*;
 use ctt::queries::*;
 use reqwest::blocking::Client;
 use reqwest::header;
-use std::fs;
+use std::{fs, io};
 //use std::fs::File;
 //use std::io::Read;
 use std::time::Duration;
+use ctt::cli;
+
+fn print_issues_json(issues: Vec<list_issues::ListIssuesIssues>) {
+    match serde_json::to_writer_pretty(io::stdout(), &issues) {
+        Ok(_) => {},
+        Err(e) => eprintln!("Error Serializing issues to JSON {:?}", e)
+    }
+}
+
+fn print_issue_json(issue: get_issue::GetIssueIssue) {
+    match serde_json::to_writer_pretty(io::stdout(), &issue) {
+        Ok(_) => {},
+        Err(e) => eprintln!("Error Serializing issues to JSON {:?}", e)
+    }
+}
 
 fn print_issues(mut issues: Vec<list_issues::ListIssuesIssues>) {
     let mut table = Table::new();
@@ -279,14 +294,17 @@ fn main() {
         .default_headers(headers)
         .build()
         .unwrap();
-
+    let oformat = args.format.unwrap_or_else(|| cli::DisplayFormat::Human);
     match args.cmd {
         Command::Open(new_issue) => match ctt::issue_open(&client, &api_endpoint, new_issue) {
             Ok(id) => println!("Opened issue {}", &id),
             Err(error) => println!("Error opening issue: {}", error),
         },
         Command::List(filter) => match ctt::issue_list(&client, &api_endpoint, filter) {
-            Ok(issues) => print_issues(issues),
+            Ok(issues) => { match oformat {
+                ctt::cli::DisplayFormat::Human => print_issues(issues),
+                ctt::cli::DisplayFormat::JSON => print_issues_json(issues),
+            }},
             Err(error) => println!("Error listing issues: {}", error),
         },
         Command::Close(vars) => match ctt::issue_close(&client, &api_endpoint, vars) {
@@ -294,7 +312,10 @@ fn main() {
             Err(error) => println!("Error closing issue: {}", error),
         },
         Command::Show(vars) => match ctt::issue_show(&client, &api_endpoint, vars) {
-            Ok(Some(status)) => print_issue(status),
+            Ok(Some(status)) => { match oformat {
+                ctt::cli::DisplayFormat::Human => print_issue(status),
+                ctt::cli::DisplayFormat::JSON => print_issue_json(status),
+            }},
             Ok(None) => println!("Issue not found"),
             Err(error) => println!("Error showing issue: {}", error),
         },

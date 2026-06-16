@@ -2,7 +2,7 @@ use super::*;
 pub use crate::cli::GetVariables as Variables;
 use crate::cli::IssueStatus;
 use chrono::NaiveDateTime;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub struct GetIssue;
 pub const OPERATION_NAME: &str = "GetIssue";
@@ -11,7 +11,7 @@ pub const QUERY : & str = "query GetIssue($id: Int!){\n  issue(issue: $id){\n   
 pub struct ResponseData {
     pub issue: Option<GetIssueIssue>,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct GetIssueIssue {
     #[serde(rename = "assignedTo")]
     pub assigned_to: Option<String>,
@@ -30,7 +30,7 @@ pub struct GetIssueIssue {
     pub target: Option<GetIssueIssueTarget>,
     pub related: Vec<GetIssueIssueTarget>,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct GetIssueIssueComments {
     #[serde(rename = "createdBy")]
     pub created_by: String,
@@ -38,7 +38,7 @@ pub struct GetIssueIssueComments {
     #[serde(rename = "createdAt")]
     pub created_at: NaiveDateTime,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct GetIssueIssueTarget {
     pub name: String,
     pub status: TargetStatus,
