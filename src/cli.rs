@@ -65,9 +65,9 @@ pub struct ListVariables {
     pub status: Option<IssueStatus>,
     #[arg(short, long)]
     pub target: Option<String>,
-    #[arg(short,long)]
+    #[arg(short,long, long_help = "date of the oldest issue that you want, format YYYY-MM-DDTHH:MM:SS.ss")]
     pub oldest_created_date: Option<NaiveDateTime>,
-    #[arg(short,long)]
+    #[arg(short,long, long_help = "date of the newest issue that you want, format YYYY-MM-DDTHH:MM:SS.ss")]
     pub newest_created_date: Option<NaiveDateTime>,
 }
 
