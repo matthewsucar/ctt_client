@@ -65,6 +65,10 @@ pub struct ListVariables {
     pub status: Option<IssueStatus>,
     #[arg(short, long)]
     pub target: Option<String>,
+    #[arg(short,long)]
+    pub oldest_created_date: Option<NaiveDateTime>,
+    #[arg(short,long)]
+    pub newest_created_date: Option<NaiveDateTime>,
 }
 
 #[derive(Serialize, clap::Args)]

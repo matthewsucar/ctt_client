@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 pub struct ListIssues;
 pub const OPERATION_NAME: &str = "ListIssues";
-pub const QUERY : & str = "query ListIssues($status: IssueStatus, $target: String) {\n  issues(issueStatus: $status, target: $target) {\n    id,\n    title,\n    assignedTo,\n    description,\n    toOffline,\n updatedAt, \n    target{name, status},\n    related{name,status},\n  }\n}\n" ;
+pub const QUERY : & str = "query ListIssues($status: IssueStatus, $target: String, $oldest_created_date: NaiveDateTime, $newest_created_date: NaiveDateTime) {\n  issues(issueStatus: $status, target: $target, oldestCreatedDate: $oldest_created_date, newestCreatedDate: $newest_created_date) {\n    id,\n    title,\n    assignedTo,\n    description,\n    toOffline,\n updatedAt, \n    target{name, status},\n    related{name,status},\n  }\n}\n" ;
 #[derive(Deserialize)]
 pub struct ResponseData {
     pub issues: Vec<ListIssuesIssues>,
